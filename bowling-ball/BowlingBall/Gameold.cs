@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BowlingBall
 {
-    public class Game
+    public class Gameold
     {
         public void Roll(int pins)
         {
