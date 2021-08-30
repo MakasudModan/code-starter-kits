@@ -12,10 +12,10 @@ namespace BowlingBall.Definition
     public interface IGame
     {
         #region Fields
-       /// <summary>
-       /// List of Throws for a single game
-       /// </summary>
-         int[] Throws {get;set;}
+        /// <summary>
+        /// List of Throws for a single game
+        /// </summary>
+        int[] Throws { get; set; }
 
         /// <summary>
         /// Number of Frames for a single game
@@ -26,7 +26,7 @@ namespace BowlingBall.Definition
         ///  Returns Final Score 
         /// </summary>
          int FinalScore { get; set; }
-       
+
         /// <summary>
         /// Indicates Last Frame in a single game
         /// </summary>

@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace BowlingBall.Implementation
 {
-  /// <summary>
-  /// Frame Class to store each throw values and calculate individual score 
-  /// </summary>
+    /// <summary>
+    /// Frame Class to store each throw values and calculate individual score 
+    /// </summary>
     public class Frame : IFrame
     {
 
@@ -18,6 +18,7 @@ namespace BowlingBall.Implementation
         private bool Isstrike = false;
         private bool Isspare = false;
         private bool IslastFrame = false;
+        private bool IsframeComplete = false;
         private int frameScore;
         #endregion
 
@@ -49,6 +50,12 @@ namespace BowlingBall.Implementation
             set { IslastFrame = value; }
         }
 
+        public bool IsFrameComplete
+        {
+            get { return IsframeComplete; }
+            set { IsframeComplete = value; }
+        }
+
         #endregion
 
         #region Public Methods
@@ -59,7 +66,7 @@ namespace BowlingBall.Implementation
 
         public int GetScore(int bonus = 0)
         {
-            return this.GetFirstScore() + this.GetSecondScore() + bonus ;
+            return this.GetFirstScore() + this.GetSecondScore() + bonus;
         }
 
         public int GetSecondScore()

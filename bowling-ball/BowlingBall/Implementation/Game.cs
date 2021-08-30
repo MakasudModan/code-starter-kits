@@ -12,6 +12,10 @@ namespace BowlingBall.Implementation
         #region Private Fields
         private List<IFrame> frames { get; set; }
 
+        private int CurrentIndex { get; set; }
+
+        private int MaximumThrows { get; set; }
+
         /// <summary>
         ///  Indicates numbers of throws in a single game
         /// </summary>
@@ -22,6 +26,9 @@ namespace BowlingBall.Implementation
         /// </summary>
         private bool IslastFrame { get; set; }
 
+
+        private bool IsFrameOpen { get; set; }
+
         /// <summary>
         /// Final socre
         /// </summary>
@@ -31,6 +38,8 @@ namespace BowlingBall.Implementation
         /// Indicate Last frame in total frame
         /// </summary>
         public bool IsLastFrame { get { return IslastFrame; } set { IslastFrame = value; } }
+
+        private IFrame CurrentFrame { get; set; }
         #endregion
 
         #region Public Fields
@@ -44,7 +53,7 @@ namespace BowlingBall.Implementation
         ///  Maximum score per frame
         /// </summary>
         public int MaxScorePerFrame { get; set; }
-        
+
         /// <summary>
         /// Attempts per frame
         /// </summary>
@@ -52,7 +61,7 @@ namespace BowlingBall.Implementation
         /// <summary>
         /// Frames in a single game
         /// </summary>
-      
+
         /// <summary>
         /// Number of Frames in Game 
         /// </summary>
@@ -93,6 +102,20 @@ namespace BowlingBall.Implementation
             frames = new List<IFrame>();
             IslastFrame = false;
         }
+        public Game()
+        {
+            MaxFrames = 10;
+            MaxScorePerFrame = 10;
+            MaxAttemptPerFrame = 2;
+            frames = new List<IFrame>();
+            IslastFrame = false;
+
+            Throws = new int[21];
+            MaximumThrows = 21;
+            CurrentIndex = 0;
+            IsFrameOpen = false;
+        }
+
         #endregion
 
         #region Private Methods 
@@ -101,9 +124,14 @@ namespace BowlingBall.Implementation
         /// </summary>
         /// <param name="throws">throws score</param>
         /// <returns>True or False</returns>
+        //private bool IsStrike(int throws)
+        //{
+        //    return Throws[throws] == MaxScorePerFrame;
+        //}
+
         private bool IsStrike(int throws)
         {
-            return Throws[throws] == MaxScorePerFrame;
+            return throws == MaxScorePerFrame;
         }
 
         /// <summary>
@@ -121,9 +149,126 @@ namespace BowlingBall.Implementation
             }
             return Throws[throws] + SecondValue == MaxScorePerFrame;
         }
+
+
+        private bool IsSpare(int[] throws)
+        {
+            return throws[0] + throws[1] == MaxScorePerFrame;
+        }
+
         #endregion
 
         #region Public Method
+
+
+
+        public void Roll(int pins)
+        {
+            // Add your logic here. Add classes as needed.
+
+            // Check if this is first frame. 
+            if (CurrentIndex == 0) // 
+            {
+                CurrentFrame = new Frame();
+                Throws[CurrentIndex] = pins;
+                IsFrameOpen = true;
+                IFrame FirstFrame = new Frame();
+                FirstFrame.Scores = new int[MaxAttemptPerFrame];
+                FirstFrame.Scores[0] = pins;
+                if (IsStrike(pins))
+                {
+                    FirstFrame.IsStrike = true;
+                    FirstFrame.IsFrameComplete = true;
+                    IsFrameOpen = false;
+                    FirstFrame.IsLastFrame = false;
+                    Frames.Add(FirstFrame);
+                }
+
+                CurrentFrame = FirstFrame;
+
+            }
+            else if (CurrentIndex != MaximumThrows)
+            {
+                // Check for Current Frame 
+                Throws[CurrentIndex] = pins;
+
+                if (IsFrameOpen)
+                {
+                    if (CurrentFrame.IsLastFrame && CurrentFrame.IsFrameComplete == false) // store second value for Last frame
+                    {
+                        CurrentFrame.Scores[1] = pins;
+                        IsFrameOpen = true;
+                        CurrentFrame.IsFrameComplete = true;
+                        Frames.Add(CurrentFrame);
+                    }
+                    else if (CurrentFrame.IsLastFrame) // store third value for Last frame for Extra thorws. 
+                    {
+                        CurrentFrame.Scores[2] = pins;
+                        CurrentFrame.IsFrameComplete = true;
+                        IsFrameOpen = false;
+                    }
+                    else
+                    {
+                        CurrentFrame.Scores[1] = pins;
+                        IsFrameOpen = false;
+                        Frames.Add(CurrentFrame);
+                    }
+                }
+                else
+                {
+
+                    // Check for last frame here 
+
+                    if (frames.Count + 1 == MaxFrames) // Last frame 
+                    {
+                        CurrentFrame = new Frame();
+                        CurrentFrame.Scores = new int[MaxAttemptPerFrame + 1];// +1 for extra thorws in last frame 
+                        CurrentFrame.Scores[0] = pins;
+                        if (IsStrike(pins))
+                        {
+                            CurrentFrame.IsStrike = true;
+                        }
+                        //Frames.Add(CurrentFrame);
+                        IsFrameOpen = true;
+                        CurrentFrame.IsFrameComplete = false;
+                        CurrentFrame.IsLastFrame = true;
+
+                    }
+                    else  // Add value in Next Frame 
+                    {
+                        CurrentFrame = new Frame();
+                        CurrentFrame.Scores = new int[MaxAttemptPerFrame];
+                        CurrentFrame.Scores[0] = pins;
+                        CurrentFrame.IsFrameComplete = false;
+                        CurrentFrame.IsLastFrame = false;
+                        IsFrameOpen = true;
+                        if (IsStrike(pins))
+                        {
+                            CurrentFrame.IsStrike = true;
+                            CurrentFrame.IsFrameComplete = true;
+                            Frames.Add(CurrentFrame);
+                            IsFrameOpen = false;
+                        }
+
+                    }
+
+                }
+
+            }
+            CurrentIndex++;
+
+        }
+
+        public int GetScore()
+        {
+            // Returns the final score of the game.
+            CalculateScore(); // Calculate fianl score
+            IsFrameOpen = false;
+            CurrentIndex = 0;
+            return finalScore;
+        }
+
+
 
         /// <summary>
         /// Allowcate throws to each frame
@@ -212,9 +357,9 @@ namespace BowlingBall.Implementation
             try
             {
                 // Get all Stike Frame 
-                for (int frameCount = 0; frameCount < frames.Count; frameCount++)
+                for (int frameCount = 0; frameCount < Frames.Count; frameCount++)
                 {
-                    IFrame CurrentFrame = frames[frameCount];
+                    IFrame CurrentFrame = Frames[frameCount];
                     if (CurrentFrame.IsLastFrame) // No need to check for Strike and Spare for last frame, Get extra throw value and calculate score.
                     {
                         FinalScore += CurrentFrame.GetScore(CurrentFrame.GetExtraThrowValue());
@@ -224,19 +369,20 @@ namespace BowlingBall.Implementation
                     if (CurrentFrame.IsStrike)
                     {
                         // Get next two throws value from next frame
-                        IFrame NextFrame = frames[frameCount + 1];
+                        IFrame NextFrame = Frames[frameCount + 1];
                         int FirstValue = NextFrame.GetFirstScore();
                         int SecondValue = NextFrame.GetSecondScore();
                         if (SecondValue == 0 && !NextFrame.IsLastFrame) // In case next frame also have Strike and its not last frame.. e.g 10 10 10
                         {
-                            SecondValue = frames[frameCount + 2].GetFirstScore(); // Next frame's first value 
+                            SecondValue = Frames[frameCount + 2].GetFirstScore(); // Next frame's first value 
                         }
 
                         FinalScore += CurrentFrame.GetScore(FirstValue + SecondValue);  // Get Next frame's score and add with current frame's score
                     }
-                    else if (CurrentFrame.IsSpare)
+                    //  else if (CurrentFrame.IsSpare)
+                    else if (IsSpare(CurrentFrame.Scores))
                     {
-                        FinalScore += CurrentFrame.GetScore(frames[frameCount + 1].GetFirstScore());  // Get Next frame's first throw score and add with current frame's score
+                        FinalScore += CurrentFrame.GetScore(Frames[frameCount + 1].GetFirstScore());  // Get Next frame's first throw score and add with current frame's score
                     }
                     else
                     {

@@ -9,7 +9,7 @@ namespace BowlingBall.Definition
     /// <summary>
     /// Iframe interface for Score Thorws value, Get score, Get Extra throw value
     /// </summary>
- public interface IFrame
+    public interface IFrame
     {
         #region Fields 
         /// <summary>
@@ -26,11 +26,16 @@ namespace BowlingBall.Definition
         /// Indiciates Spare in Frame
         /// </summary>
          bool IsSpare { get; set; }
-        
+
         /// <summary>
         /// Indictes Last frame from the list 
         /// </summary>
          bool IsLastFrame { get; set; }
+
+        /// <summary>
+        /// Indictes Frame is Complete
+        /// </summary>
+         bool IsFrameComplete { get; set; }
 
         /// <summary>
         ///  Returns Score of throws for a Frame
@@ -46,13 +51,13 @@ namespace BowlingBall.Definition
         /// <param name="bouns">Bonus of next frame</param>
         /// <returns>Returns Score</returns>
          int GetScore(int bouns = 0);
-        
+
         /// <summary>
         /// Returns First attempt score
         /// </summary>
         /// <returns>First attempt score</returns>
          int GetFirstScore();
-      
+
         /// <summary>
         /// Returns Second attemps Score
         /// </summary>
